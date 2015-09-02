@@ -87,17 +87,17 @@
                         $.post('/score', JSON.stringify(postData), function(result){
                             result = $.parseJSON(result);
                             console.log(result);
-                            if(result.score < 1)
+                            if(result.scores.night < 1)
                                 $('#score').html('<div class="red"><u>This Route</u></div>');
-                            else if(result.score < 2)
+                            else if(result.scores.night < 2)
                                 $('#score').html('<div class="yellow"><u>This Route</u></div>');
                             else
                                 $('#score').html('<div class="green"><u>This Route</u></div>');
                             $('#roads').html('');
                             for(var i=0; i<result.roads.length; i++) {
-                                if(result.roads[i].score < 1)
+                                if(result.roads[i].night_score == "red")
                                     $('#roads').append('<div class="red">' + result.roads[i].label + '</div>');
-                                else if(result.roads[i].score < 2)
+                                else if(result.roads[i].night_score == "yellow")
                                     $('#roads').append('<div class="yellow">' + result.roads[i].label + '</div>');
                                 else
                                     $('#roads').append('<div class="green">' + result.roads[i].label + '</div>');
