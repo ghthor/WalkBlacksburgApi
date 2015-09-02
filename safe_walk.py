@@ -10,7 +10,7 @@ app = Flask(__name__)
 def score():
     conn = psycopg2.connect(host='postgres1.ceipocejvkue.us-west-2.rds.amazonaws.com', database='blacksburg', user='blacksburg_read', password='nrv', cursor_factory=RealDictCursor)
     cur = conn.cursor()
-    query = "SELECT roads.gid, roads.name, roads.label, roads.speedlmt, roads.hasstreetlights, roads.hassidewalks, \
+    query = "SELECT roads.gid, roads.label, roads.speedlmt, roads.hasstreetlights, roads.hassidewalks, roads.day_score, roads.night_score, \
                 ST_Distance(ST_GeomFromText('POINT(%(lon)s %(lat)s)',4326), \
                             ST_Transform(roads.geom, 4326)) AS myLineDistance \
              FROM public.roads \
@@ -20,25 +20,18 @@ def score():
     coordinates = json.loads(request.get_data())
     roads = []
     road_ids = []
-    scores = []
+    scores = {'day': [], 'night': []}
+    scoring = {"red": 1, "yellow": 2, "green": 3}
     for coordinate in coordinates:
         cur.execute(query, coordinate)
         road = cur.fetchone()
         if road['gid'] not in road_ids:
-            score = 1
-            if road['speedlmt'] <= 25:
-                score = 3
-            elif road['speedlmt'] <= 35:
-                score = 2
-            if not road['hassidewalks']:
-                score -= 1
-            if not road['hasstreetlights']:
-                score -= 1
-            scores.append(score)
-            road['score'] = score
+            scores['day'].append(scoring[road['day_score']])
+            scores['night'].append(scoring[road['night_score']])
             roads.append(road)
             road_ids.append(road['gid'])
-    return json.dumps({'score': sum(scores)/len(scores), 'roads': roads})
+    #return json.dumps({'roads': roads});
+    return json.dumps({'scores': {'day': sum(scores['day'])/float(len(scores['day'])), 'night': sum(scores['night'])/float(len(scores['night']))}, 'roads': roads})
 
 if __name__ == '__main__':
     app.run(debug=True)
