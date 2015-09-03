@@ -7,7 +7,6 @@ from flask.ext.cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-print("test")
 
 @app.route('/score', methods=['POST'])
 def score():
