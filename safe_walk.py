@@ -3,8 +3,10 @@ import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from flask import Flask, request
+from flask.ext.cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/score', methods=['POST'])
 def score():
